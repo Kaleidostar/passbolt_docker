@@ -57,7 +57,9 @@ describe 'passbolt_api service' do
         'PASSBOLT_PLUGINS_JWT_AUTHENTICATION_ENABLED=true'
       ],
       'Image' => @image.id,
-      'Binds' => $binds
+      'HostConfig' => {
+        'Binds' => $binds
+      }
     )
 
     @container.start
@@ -74,7 +76,7 @@ describe 'passbolt_api service' do
 
   let(:passbolt_host)     { @container.json['NetworkSettings']['IPAddress'] }
   let(:uri)               { '/healthcheck/status.json' }
-  let(:curl)              { "curl -sk -o /dev/null -w '%{http_code}' -H 'Host: passbolt.local' https://#{passbolt_host}:#{$https_port}/#{uri}" }
+  let(:curl)              { "curl -sLk -o /dev/null -w '%{http_code}' -H 'Host: passbolt.local' https://#{passbolt_host}:#{$https_port}#{uri}" }
   let(:jwt_conf)          { "#{PASSBOLT_CONFIG_PATH + '/jwt'}" }
   let(:jwt_key_pair)      { ["#{jwt_conf}/jwt.key", "#{jwt_conf}/jwt.pem"] }
 
@@ -160,9 +162,13 @@ describe 'passbolt_api service' do
   end
 
   describe 'hide information' do
-    let(:curl) { "curl -Isk -H 'Host: passbolt.local' https://#{passbolt_host}:#{$https_port}/" }
+    let(:curl) { "curl -skL -D - -H 'Host: passbolt.local' https://#{passbolt_host}:#{$https_port}#{uri} -o /dev/null" }
     it 'hides php version' do
       expect(command("#{curl} | grep 'X-Powered-By: PHP'").stdout).to be_empty
+    end
+
+    it 'returns 200' do 
+      expect(command(curl).stdout).to contain 'HTTP/2 200'
     end
 
     it 'hides nginx version' do
@@ -177,20 +183,21 @@ describe 'passbolt_api service' do
     let(:gnupghome) { '/var/lib/passbolt/.gnupg' }
 
     let(:list_keys_cmd) do
-       if ENV['ROOTLESS'] == 'true'
-         ['gpg', '--homedir', gnupghome, '--list-keys', '--with-colons']
-       else
-         ['su', '-s', '/bin/bash', '-c', "gpg --homedir #{gnupghome} --list-keys --with-colons", 'www-data']
-       end
-     end
+      if ENV['ROOTLESS'] == 'true'
+        ['gpg', '--homedir', gnupghome, '--list-keys', '--with-colons']
+      else
+        ['su', '-s', '/bin/bash', '-c', "gpg --homedir #{gnupghome} --list-keys --with-colons", 'www-data']
+      end
+    end
 
-     let(:healthcheck_cmd) do
-       if ENV['ROOTLESS'] == 'true'
-         ['bash', '-c', 'source /etc/environment && /usr/share/php/passbolt/bin/cake passbolt healthcheck --gpg']
-       else
-         ['su', '-s', '/bin/bash', '-c', 'source /etc/environment && /usr/share/php/passbolt/bin/cake passbolt healthcheck --gpg', 'www-data']
-       end
-     end
+    let(:healthcheck_cmd) do
+      if ENV['ROOTLESS'] == 'true'
+        ['bash', '-c', 'source /etc/environment && /usr/share/php/passbolt/bin/cake passbolt healthcheck --gpg']
+      else
+        ['su', '-s', '/bin/bash', '-c',
+         'source /etc/environment && /usr/share/php/passbolt/bin/cake passbolt healthcheck --gpg', 'www-data']
+      end
+    end
 
     describe 'generated keys' do
       it 'should have created private key file' do
@@ -220,9 +227,7 @@ describe 'passbolt_api service' do
         expect(usage_flags).to include('s')
         expect(usage_flags).to include('c')
         expect(usage_flags).not_to include('e')
-
       end
-
 
       it 'should have correct key usage for subkey' do
         output = @container.exec(list_keys_cmd)[0].join
@@ -238,25 +243,24 @@ describe 'passbolt_api service' do
       end
     end
 
-      it 'should pass all GPG checks' do
-        output = @container.exec(healthcheck_cmd)[0].join
+    it 'should pass all GPG checks' do
+      output = @container.exec(healthcheck_cmd)[0].join
 
-        expect(output).to include('[PASS] PHP GPG Module is installed and loaded')
-        expect(output).to include('[PASS] The environment variable GNUPGHOME is set')
-        expect(output).to include('[PASS] The server OpenPGP key is not the default one')
-        expect(output).to include('[PASS] The public key file is defined')
-        expect(output).to include('[PASS] The private key file is defined')
+      expect(output).to include('[PASS] PHP GPG Module is installed and loaded')
+      expect(output).to include('[PASS] The environment variable GNUPGHOME is set')
+      expect(output).to include('[PASS] The server OpenPGP key is not the default one')
+      expect(output).to include('[PASS] The public key file is defined')
+      expect(output).to include('[PASS] The private key file is defined')
 
-        pass_count = output.scan(/\[PASS\]/).count
-        fail_count = output.scan(/\[FAIL\]/).count
+      pass_count = output.scan(/\[PASS\]/).count
+      fail_count = output.scan(/\[FAIL\]/).count
 
-        expect(pass_count).to be >= 10
-        expect(fail_count).to eq(0)
+      expect(pass_count).to be >= 10
+      expect(fail_count).to eq(0)
 
-        expect(output).to include('[PASS] No error found')
-      end
+      expect(output).to include('[PASS] No error found')
+    end
   end
-
 
   describe 'jwt configuration' do
     it 'should have the correct permissions' do
