@@ -73,7 +73,7 @@ function clear_cake_cache_engines() {
 function migrate_command() {
   echo "Running migrations"
   /usr/share/php/passbolt/bin/cake passbolt migrate --no-clear-cache
-  clear_cake_cache_engines model core
+  clear_cake_cache_engines model core translations
 }
 
 function jwt_keys_creation() {
