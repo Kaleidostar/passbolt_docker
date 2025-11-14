@@ -14,7 +14,7 @@ LABEL org.opencontainers.image.title=passbolt/passbolt
 LABEL org.opencontainers.image.url=https://passbolt.com
 
 ARG SUPERCRONIC_ARCH=amd64
-ARG SUPERCRONIC_SHA1SUM=bc072eba2ae083849d5f86c6bd1f345f6ed902d0
+ARG SUPERCRONIC_SHA1SUM=c98bbf82c5f648aaac8708c182cc83046fe48423
 
 ARG PASSBOLT_DISTRO="buster"
 ARG PASSBOLT_COMPONENT="stable"
@@ -31,7 +31,7 @@ ARG PASSBOLT_GROUP_GID=33
 ENV PASSBOLT_PKG_KEY=0xDE8B853FC155581D
 ENV PHP_VERSION=8.4
 ENV GNUPGHOME=/var/lib/passbolt/.gnupg
-ENV SUPERCRONIC_VERSION=0.2.38
+ENV SUPERCRONIC_VERSION=0.2.39
 ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-${SUPERCRONIC_ARCH} \
   SUPERCRONIC=supercronic-linux-${SUPERCRONIC_ARCH}
 ENV PASSBOLT_FLAVOUR="${PASSBOLT_FLAVOUR}"
@@ -119,12 +119,12 @@ RUN chmod 0644 /etc/supervisor/conf.d/* \
 
 # Changes ownership of some files for Openshift compatibility  
 RUN chgrp -R 0   /var/lib/passbolt /etc/passbolt /etc/supervisor /etc/environment /var/log/supervisor /var/log/nginx && \
-    chmod -R g=u /var/lib/passbolt /etc/passbolt /etc/supervisor /etc/environment /var/log/supervisor /var/log/nginx && \
-    chgrp 0 /var/run  && \ 
-    chmod g=u /var/run && \ 
-    mkdir /var/run/php && \
-    chgrp -R 0 /var/run/php  && \ 
-    chmod -R g=u /var/run/php
+  chmod -R g=u /var/lib/passbolt /etc/passbolt /etc/supervisor /etc/environment /var/log/supervisor /var/log/nginx && \
+  chgrp 0 /var/run  && \ 
+  chmod g=u /var/run && \ 
+  mkdir /var/run/php && \
+  chgrp -R 0 /var/run/php  && \ 
+  chmod -R g=u /var/run/php
 
 # Openshift uses a random UID which is added to the root group. This mimics the functionality with the default user we provide.
 RUN usermod -a -G root www-data
