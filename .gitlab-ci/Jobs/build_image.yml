@@ -227,3 +227,21 @@ build-pro-stable-rootless-arm-v7:
     PLATFORM: "linux/arm/v7"
     SUPERCRONIC_ARCH: arm
     SUPERCRONIC_SHA1SUM: 510b84b031b78ebe25b1f00c91ced3434edcd383
+
+build-ce-stable-openshift:
+  extends: .stable-build
+  variables:
+    DOCKERFILE_PATH: "debian/Dockerfile.openshift"
+    DOCKER_TAG: "openshift"
+    SUPERCRONIC_ARCH: amd64
+    SUPERCRONIC_SHA1SUM: bc072eba2ae083849d5f86c6bd1f345f6ed902d0
+    PLATFORM: "linux/amd64"
+
+build-pro-stable-openshift:
+  extends: .stable-build-pro
+  variables:
+    DOCKERFILE_PATH: "debian/Dockerfile.openshift"
+    DOCKER_TAG: "openshift"
+    SUPERCRONIC_ARCH: amd64
+    SUPERCRONIC_SHA1SUM: bc072eba2ae083849d5f86c6bd1f345f6ed902d0
+    PLATFORM: "linux/amd64"

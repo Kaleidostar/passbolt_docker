@@ -112,3 +112,51 @@ pro-non-root-docker-runtime-with-passbolt-php:
   variables:
     TEST_NAME: docker_runtime_with_passbolt_php
     ROOTLESS: "true"
+
+ce-openshift-docker-image:
+  extends: .test-images
+  variables:
+    TEST_NAME: docker_image
+    ROOTLESS: "true"
+
+ce-openshift-docker-runtime:
+  extends: .test-images
+  variables:
+    TEST_NAME: docker_runtime
+    ROOTLESS: "true"
+
+ce-openshift-docker-runtime-no-envs:
+  extends: .test-images
+  variables:
+    TEST_NAME: docker_runtime_no_envs
+    ROOTLESS: "true"
+
+ce-openshift-docker-runtime-with-passbolt-php:
+  extends: .test-images
+  variables:
+    TEST_NAME: docker_runtime_with_passbolt_php
+    ROOTLESS: "true"
+
+pro-openshift-docker-image:
+  extends: .test-pro-images
+  variables:
+    TEST_NAME: docker_image
+    ROOTLESS: "true"
+
+pro-openshift-docker-runtime:
+  extends: .test-pro-images
+  variables:
+    TEST_NAME: docker_runtime
+    ROOTLESS: "true"
+
+pro-openshift-docker-runtime-no-envs:
+  extends: .test-pro-images
+  variables:
+    TEST_NAME: docker_runtime_no_envs
+    ROOTLESS: "true"
+
+pro-openshift-docker-runtime-with-passbolt-php:
+  extends: .test-images
+  variables:
+    TEST_NAME: docker_runtime_with_passbolt_php
+    ROOTLESS: "true"
