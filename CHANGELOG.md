@@ -3,7 +3,25 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased](https://github.com/passbolt/passbolt_docker/compare/4.1.1...HEAD)
+## [Unreleased](https://github.com/passbolt/passbolt_docker/compare/4.2.0...HEAD)
+
+## [4.2.0](https://github.com/passbolt/passbolt_docker/compare/4.1.1...4.2.0) - 2025-11-18
+
+## Added
+
+- Pin Passbolt server key generation to RSA by default
+- Openshift support
+
+## Changed
+
+- Upgraded Debian 13 as the base image
+- Bumped supercronic dependency to 0.2.39
+- Various testing improvements
+
+## Fixed
+
+- `mediaType` OCI type mismatch between index and manifest
+- JWT directory permission error
 
 ## [4.1.1](https://github.com/passbolt/passbolt_docker/compare/4.1.0...4.1.1) - 2025-04-02
 
